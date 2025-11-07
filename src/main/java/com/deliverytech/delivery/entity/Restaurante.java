@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "restaurante")
@@ -18,6 +19,7 @@ public class Restaurante {
     private String categoria;
     private Double avaliacao; // Para ordenação (Atividade 1)
     private boolean ativo = true;
+    private BigDecimal taxaEntrega;
 
     // Construtor padrão
     public Restaurante() {
@@ -62,5 +64,12 @@ public class Restaurante {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+public BigDecimal getTaxaEntrega() {
+        return taxaEntrega;
+    }
+
+    public void setTaxaEntrega(BigDecimal taxaEntrega) {
+        this.taxaEntrega = taxaEntrega;
     }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "produto")
@@ -17,7 +18,7 @@ public class Produto {
 
     private String nome;
     private String categoria;
-    private Double preco;
+    private BigDecimal preco;
     private boolean disponivel = true;
 
     // Relação: Muitos produtos pertencem a UM restaurante
@@ -53,11 +54,11 @@ public class Produto {
         this.categoria = categoria;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 

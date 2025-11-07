@@ -1,17 +1,19 @@
 package com.deliverytech.delivery.entity;
 
-import java.math.BigDecimal; // Importa o tipo correto para dinheiro
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList; // Importa o ArrayList
+import java.util.List; // Importa o List
 
-import com.deliverytech.delivery.entity.StatusPedido; // Importa o Enum que criamos
-
+import jakarta.persistence.CascadeType; // Importa o Cascade
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType; // Importação necessária
-import jakarta.persistence.Enumerated; // Importação necessária
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany; // Importa o OneToMany
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,31 +24,31 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relação: Muitos pedidos pertencem a UM cliente
     @ManyToOne
     private Cliente cliente;
 
+    // --- NOVA RELAÇÃO (Roteiro 4) ---
+    // Um Pedido tem Muitos Itens
+    // CascadeType.ALL = Se apagar o pedido, apaga os itens
+    // mappedBy = Diz ao JPA que o "lado dono" é o campo "pedido" na classe ItemPedido
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    private List<ItemPedido> itens = new ArrayList<>();
+    // --- FIM DA NOVA RELAÇÃO ---
+
     private LocalDateTime dataPedido;
-
-    // --- CORREÇÕES DO ROTEIRO 3 ---
-
-    // Informa ao JPA para salvar o NOME do Enum (ex: "ENTREGUE") 
-    // em vez do número (ex: 2)
-    @Enumerated(EnumType.STRING) 
-    private StatusPedido status; // Mudou de String para o Enum StatusPedido
-
-    private BigDecimal valorTotal; // Mudou de Double para BigDecimal (melhor para dinheiro)
     
-    // --- FIM DAS CORREÇÕES ---
+    private String enderecoEntrega; // Campo novo (Roteiro 4)
 
+    @Enumerated(EnumType.STRING)
+    private StatusPedido status;
+
+    private BigDecimal valorTotal;
 
     // Construtor padrão
     public Pedido() {
     }
 
-    
-    // --- GETTERS E SETTERS ATUALIZADOS ---
-
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -63,6 +65,14 @@ public class Pedido {
         this.cliente = cliente;
     }
 
+    public List<ItemPedido> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<ItemPedido> itens) {
+        this.itens = itens;
+    }
+
     public LocalDateTime getDataPedido() {
         return dataPedido;
     }
@@ -70,8 +80,15 @@ public class Pedido {
     public void setDataPedido(LocalDateTime dataPedido) {
         this.dataPedido = dataPedido;
     }
+    
+    public String getEnderecoEntrega() {
+        return enderecoEntrega;
+    }
 
-    // Getter/Setter CORRETO para StatusPedido
+    public void setEnderecoEntrega(String enderecoEntrega) {
+        this.enderecoEntrega = enderecoEntrega;
+    }
+
     public StatusPedido getStatus() {
         return status;
     }
@@ -80,12 +97,17 @@ public class Pedido {
         this.status = status;
     }
 
-    // Getter/Setter CORRETO para BigDecimal
     public BigDecimal getValorTotal() {
         return valorTotal;
     }
 
     public void setValorTotal(BigDecimal valorTotal) {
         this.valorTotal = valorTotal;
+    }
+    
+    // Método auxiliar para adicionar itens (facilita a vida)
+    public void adicionarItem(ItemPedido item) {
+        this.itens.add(item);
+        item.setPedido(this); // Seta a "mão dupla"
     }
 }

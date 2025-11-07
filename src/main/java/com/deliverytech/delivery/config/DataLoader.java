@@ -10,7 +10,7 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Component // Diz ao Spring para gerenciar esta classe
+// @Component // Desabilitado para o Roteiro 4
 public class DataLoader implements CommandLineRunner {
 
     // 1. Injeta todos os repositórios que vamos usar

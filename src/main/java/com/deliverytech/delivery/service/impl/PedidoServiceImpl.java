@@ -7,7 +7,7 @@ import com.deliverytech.delivery.service.PedidoService;
 import com.deliverytech.delivery.service.exception.BusinessException;
 import com.deliverytech.delivery.service.exception.ResourceNotFoundException;
 
-import org.modelmapper.ModelMapper;
+import org.modelmapper.ModelMapper; // <-- Este import está aqui
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
     @Autowired
-    private ItemPedidoRepository itemPedidoRepository; // Agora será usado
+    private ItemPedidoRepository itemPedidoRepository; // <-- Este campo está aqui
     @Autowired
     private ClienteRepository clienteRepository;
     @Autowired
@@ -31,7 +31,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private RestauranteRepository restauranteRepository;
     @Autowired
-    private ModelMapper modelMapper; // Agora será usado
+    private ModelMapper modelMapper; // <-- Este campo está aqui
 
     @Override
     @Transactional
@@ -51,7 +51,7 @@ public class PedidoServiceImpl implements PedidoService {
             throw new BusinessException("Não é possível criar pedido: Restaurante " + restaurante.getNome() + " está inativo");
         }
 
-        // 3. Preparar o Pedido (mas não salvar ainda)
+        // 3. Preparar o Pedido
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setDataPedido(LocalDateTime.now());
@@ -65,12 +65,10 @@ public class PedidoServiceImpl implements PedidoService {
             Produto produto = produtoRepository.findById(itemDTO.produtoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + itemDTO.produtoId()));
 
-            // Regra: Produto está disponível?
             if (!produto.isDisponivel()) {
                 throw new BusinessException("Produto " + produto.getNome() + " não está disponível");
             }
             
-            // Regra: Produto pertence ao restaurante?
             if (!produto.getRestaurante().getId().equals(restaurante.getId())) {
                 throw new BusinessException("Produto " + produto.getNome() + " não pertence ao restaurante " + restaurante.getNome());
             }
@@ -85,7 +83,7 @@ public class PedidoServiceImpl implements PedidoService {
             item.setPrecoUnitario(preco);
             item.setQuantidade(itemDTO.quantidade());
             
-            pedido.adicionarItem(item); // Adiciona o item ao pedido
+            pedido.adicionarItem(item);
         }
 
         // 5. Adicionar Taxa de Entrega
@@ -114,13 +112,7 @@ public class PedidoServiceImpl implements PedidoService {
         List<Pedido> pedidos = pedidoRepository.findByClienteId(clienteId);
         
         return pedidos.stream()
-            .map(pedido -> new PedidoResumoDTO(
-                pedido.getId(),
-                pedido.getItens().get(0).getProduto().getRestaurante().getNome(), // Pega o nome do restaurante (simplificado)
-                pedido.getDataPedido(),
-                pedido.getStatus(),
-                pedido.getValorTotal()
-            ))
+            .map(this::mapToPedidoResumoDTO) // <-- Mapeamento auxiliar
             .collect(Collectors.toList());
     }
 
@@ -154,7 +146,36 @@ public class PedidoServiceImpl implements PedidoService {
         pedidoRepository.save(pedido);
     }
     
-    // --- MÉTODO AUXILIAR PARA MAPEAMENTO ---
+    // --- NOVO MÉTODO (Roteiro 5) ---
+    @Override
+    @Transactional(readOnly = true)
+    public List<PedidoResumoDTO> listarPedidos(Long restauranteId, StatusPedido status, LocalDateTime dataInicio, LocalDateTime dataFim) {
+        // Usa a nova query de filtro
+        List<Pedido> pedidos = pedidoRepository.findComFiltros(restauranteId, status, dataInicio, dataFim);
+        
+        return pedidos.stream()
+            .map(this::mapToPedidoResumoDTO)
+            .collect(Collectors.toList());
+    }
+
+    // --- NOVO MÉTODO (Roteiro 5) ---
+    @Override
+    @Transactional(readOnly = true)
+    public List<PedidoResumoDTO> buscarPedidosPorRestaurante(Long restauranteId) {
+        // Valida se o restaurante existe
+        if (!restauranteRepository.existsById(restauranteId)) {
+            throw new ResourceNotFoundException("Restaurante não encontrado com ID: " + restauranteId);
+        }
+        
+        List<Pedido> pedidos = pedidoRepository.findByItensProdutoRestauranteId(restauranteId);
+        
+        return pedidos.stream()
+            .map(this::mapToPedidoResumoDTO)
+            .collect(Collectors.toList());
+    }
+    
+    // --- MÉTODOS AUXILIARES DE MAPEAMENTO ---
+    
     private PedidoResponseDTO mapToPedidoResponseDTO(Pedido pedido) {
         
         List<ItemPedidoResponseDTO> itensDTO = pedido.getItens().stream()
@@ -165,15 +186,37 @@ public class PedidoServiceImpl implements PedidoService {
             ))
             .collect(Collectors.toList());
 
+        // Pega o nome do restaurante do primeiro item (todos são do mesmo restaurante)
+        String nomeRestaurante = "N/A";
+        if (!pedido.getItens().isEmpty()) {
+            nomeRestaurante = pedido.getItens().get(0).getProduto().getRestaurante().getNome();
+        }
+
         return new PedidoResponseDTO(
             pedido.getId(),
             pedido.getCliente().getNome(),
-            pedido.getItens().get(0).getProduto().getRestaurante().getNome(), // Simplificado
+            nomeRestaurante,
             pedido.getEnderecoEntrega(),
             pedido.getDataPedido(),
             pedido.getStatus(),
             pedido.getValorTotal(),
             itensDTO
+        );
+    }
+    
+    private PedidoResumoDTO mapToPedidoResumoDTO(Pedido pedido) {
+        // Pega o nome do restaurante do primeiro item
+        String nomeRestaurante = "N/A";
+        if (!pedido.getItens().isEmpty()) {
+            nomeRestaurante = pedido.getItens().get(0).getProduto().getRestaurante().getNome();
+        }
+        
+        return new PedidoResumoDTO(
+            pedido.getId(),
+            nomeRestaurante,
+            pedido.getDataPedido(),
+            pedido.getStatus(),
+            pedido.getValorTotal()
         );
     }
 }

@@ -1,22 +1,34 @@
 package com.deliverytech.delivery.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema; // <-- IMPORT ADICIONADO
 import java.math.BigDecimal;
 
-// Convertido para 'class'
+@Schema(description = "DTO de resposta com os dados completos do restaurante") // <-- ANOTAÇÃO NA CLASSE
 public class RestauranteResponseDTO {
 
+    @Schema(description = "ID único do restaurante", example = "1") // <--
     private Long id;
+
+    @Schema(description = "Nome fantasia do restaurante", example = "Pizzaria do Zé") // <--
     private String nome;
+
+    @Schema(description = "Categoria principal do restaurante", example = "Italiana") // <--
     private String categoria;
+
+    @Schema(description = "Nota de avaliação média", example = "4.5") // <--
     private Double avaliacao;
+
+    @Schema(description = "Valor da taxa de entrega padrão", example = "5.00") // <--
     private BigDecimal taxaEntrega;
+
+    @Schema(description = "Indica se o restaurante está ativo (aceitando pedidos)", example = "true") // <--
     private boolean ativo;
 
     // Construtor vazio
     public RestauranteResponseDTO() {
     }
 
-    // Getters e Setters
+    // Getters e Setters (sem alteração)
     public Long getId() {
         return id;
     }

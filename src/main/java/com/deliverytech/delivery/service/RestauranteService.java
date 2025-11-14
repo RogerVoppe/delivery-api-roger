@@ -7,15 +7,20 @@ import java.util.List;
 
 public interface RestauranteService {
 
-    RestauranteResponseDTO cadastrarRestaurante(RestauranteDTO dto); //
+    RestauranteResponseDTO cadastrarRestaurante(RestauranteDTO dto); 
 
-    RestauranteResponseDTO buscarRestaurantePorId(Long id); //
+    RestauranteResponseDTO buscarRestaurantePorId(Long id); 
 
-    List<RestauranteResponseDTO> buscarRestaurantesPorCategoria(String categoria); //
+    // --- ATUALIZADO (Roteiro 5) ---
+    // Substitui buscarRestaurantesPorCategoria e buscarRestaurantesDisponiveis
+    List<RestauranteResponseDTO> listarRestaurantes(String categoria, Boolean ativo);
 
-    List<RestauranteResponseDTO> buscarRestaurantesDisponiveis(); //
+    RestauranteResponseDTO atualizarRestaurante(Long id, RestauranteDTO dto); 
 
-    RestauranteResponseDTO atualizarRestaurante(Long id, RestauranteDTO dto); //
+    BigDecimal calcularTaxaEntrega(Long restauranteId, String cep);
+    
+    // --- NOVOS (Roteiro 5) ---
+    RestauranteResponseDTO ativarDesativarRestaurante(Long id);
 
-    BigDecimal calcularTaxaEntrega(Long restauranteId, String cep); //
+    List<RestauranteResponseDTO> buscarRestaurantesProximos(String cep);
 }

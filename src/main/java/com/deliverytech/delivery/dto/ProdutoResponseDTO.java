@@ -1,16 +1,28 @@
 package com.deliverytech.delivery.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
-// Convertido para 'class'
+@Schema(description = "DTO de resposta com os dados completos do produto")
 public class ProdutoResponseDTO {
 
+    @Schema(description = "ID único do produto", example = "101")
     private Long id;
+
+    @Schema(description = "Nome do produto", example = "Pizza Margherita")
     private String nome;
+
+    @Schema(description = "Categoria do produto", example = "Pizza")
     private String categoria;
+
+    @Schema(description = "Preço do produto", example = "45.00")
     private BigDecimal preco;
+
+    @Schema(description = "Indica se o produto está disponível para venda", example = "true")
     private boolean disponivel;
-    private RestauranteResponseDTO restaurante; // Mostra o restaurante completo
+
+    @Schema(description = "Objeto do restaurante ao qual o produto pertence")
+    private RestauranteResponseDTO restaurante;
 
     // Construtor vazio
     public ProdutoResponseDTO() {

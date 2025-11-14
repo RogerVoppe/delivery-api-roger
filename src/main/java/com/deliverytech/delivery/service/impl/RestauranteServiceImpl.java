@@ -1,4 +1,4 @@
-package com.deliverytech.delivery.service.impl; // O 'impl' no package é crucial
+package com.deliverytech.delivery.service.impl;
 
 import com.deliverytech.delivery.dto.RestauranteDTO;
 import com.deliverytech.delivery.dto.RestauranteResponseDTO;
@@ -9,14 +9,14 @@ import com.deliverytech.delivery.service.exception.ResourceNotFoundException;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service; // Importa o @Service
+import org.springframework.stereotype.Service; 
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service // <-- A anotação que o Spring precisa ler
+@Service 
 public class RestauranteServiceImpl implements RestauranteService {
 
     @Autowired
@@ -29,7 +29,7 @@ public class RestauranteServiceImpl implements RestauranteService {
     @Transactional
     public RestauranteResponseDTO cadastrarRestaurante(RestauranteDTO dto) {
         Restaurante restaurante = modelMapper.map(dto, Restaurante.class);
-        restaurante.setAtivo(true); // Regra de negócio: novo restaurante é ativo
+        restaurante.setAtivo(true); 
 
         Restaurante restauranteSalvo = restauranteRepository.save(restaurante);
 
@@ -47,19 +47,9 @@ public class RestauranteServiceImpl implements RestauranteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RestauranteResponseDTO> buscarRestaurantesPorCategoria(String categoria) {
-        List<Restaurante> restaurantes = restauranteRepository.findByCategoria(categoria);
+    public List<RestauranteResponseDTO> listarRestaurantes(String categoria, Boolean ativo) {
         
-        return restaurantes.stream()
-            .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<RestauranteResponseDTO> buscarRestaurantesDisponiveis() {
-        // Tarefa: Apenas ativos
-        List<Restaurante> restaurantes = restauranteRepository.findByAtivoTrue();
+        List<Restaurante> restaurantes = restauranteRepository.findComFiltros(categoria, ativo);
         
         return restaurantes.stream()
             .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
@@ -81,15 +71,35 @@ public class RestauranteServiceImpl implements RestauranteService {
 
     @Override
     public BigDecimal calcularTaxaEntrega(Long restauranteId, String cep) {
-        // Tarefa: Lógica de entrega
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
             .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com ID: " + restauranteId));
         
-        // Simulação: Se o CEP começar com "0", a taxa é a padrão. Senão, é 5 reais a mais.
         if (cep != null && cep.startsWith("0")) {
             return restaurante.getTaxaEntrega();
         } else {
             return restaurante.getTaxaEntrega().add(new BigDecimal("5.00"));
         }
+    }
+    
+    @Override
+    @Transactional
+    public RestauranteResponseDTO ativarDesativarRestaurante(Long id) {
+        Restaurante restaurante = restauranteRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com ID: " + id));
+        
+        restaurante.setAtivo(!restaurante.isAtivo());
+        
+        Restaurante restauranteAtualizado = restauranteRepository.save(restaurante);
+        return modelMapper.map(restauranteAtualizado, RestauranteResponseDTO.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RestauranteResponseDTO> buscarRestaurantesProximos(String cep) {
+
+        return restauranteRepository.findTop5ByOrderByNomeAsc() 
+            .stream()
+            .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
+            .collect(Collectors.toList());
     }
 }

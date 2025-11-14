@@ -1,22 +1,27 @@
 package com.deliverytech.delivery.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-// Convertido de 'record' para 'class' para compatibilidade
+@Schema(description = "DTO para criar ou atualizar um cliente")
 public class ClienteDTO {
 
+    @Schema(description = "Nome completo do cliente", example = "João da Silva")
     @NotBlank(message = "O nome não pode ser vazio")
     @Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres")
     private String nome;
     
+    @Schema(description = "E-mail único do cliente", example = "joao.silva@email.com")
     @NotBlank(message = "O e-mail não pode ser vazio")
     @Email(message = "Formato de e-mail inválido")
     private String email;
     
+    @Schema(description = "Telefone de contato (opcional)", example = "11987654321")
     private String telefone;
     
+    @Schema(description = "Endereço principal de entrega", example = "Rua das Flores, 123")
     @NotBlank(message = "O endereço não pode ser vazio")
     private String endereco;
 

@@ -24,7 +24,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     private ProdutoRepository produtoRepository;
 
     @Autowired
-    private RestauranteRepository restauranteRepository; // Precisa validar o restaurante
+    private RestauranteRepository restauranteRepository; 
 
     @Autowired
     private ModelMapper modelMapper;
@@ -33,14 +33,12 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Transactional
     public ProdutoResponseDTO cadastrarProduto(ProdutoDTO dto) {
         
-        // --- CORREÇÃO 1 APLICADA AQUI ---
-        // Trocado dto.restauranteId() por dto.getRestauranteId()
         Restaurante restaurante = restauranteRepository.findById(dto.getRestauranteId())
             .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com ID: " + dto.getRestauranteId()));
         
         Produto produto = modelMapper.map(dto, Produto.class);
         produto.setRestaurante(restaurante);
-        produto.setDisponivel(true); // Regra: Todo produto novo é disponível
+        produto.setDisponivel(true); 
 
         Produto produtoSalvo = produtoRepository.save(produto);
         
@@ -50,11 +48,10 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Override
     @Transactional(readOnly = true)
     public List<ProdutoResponseDTO> buscarProdutosPorRestaurante(Long restauranteId) {
-        // Tarefa: Apenas disponíveis
         List<Produto> produtos = produtoRepository.findByRestauranteId(restauranteId);
         
         return produtos.stream()
-            .filter(Produto::isDisponivel) // Filtra apenas os disponíveis
+            .filter(Produto::isDisponivel) 
             .map(p -> modelMapper.map(p, ProdutoResponseDTO.class))
             .collect(Collectors.toList());
     }
@@ -65,7 +62,6 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produto = produtoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
         
-        // Tarefa: Com validação de disponibilidade
         if (!produto.isDisponivel()) {
              throw new ResourceNotFoundException("Produto não disponível com ID: " + id);
         }
@@ -79,8 +75,6 @@ public class ProdutoServiceImpl implements ProdutoService {
         Produto produtoExistente = produtoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
         
-        // --- CORREÇÃO 2 APLICADA AQUI ---
-        // Trocado dto.restauranteId() por dto.getRestauranteId()
         Restaurante restaurante = restauranteRepository.findById(dto.getRestauranteId())
             .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com ID: " + dto.getRestauranteId()));
         
@@ -108,6 +102,29 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Transactional(readOnly = true)
     public List<ProdutoResponseDTO> buscarProdutosPorCategoria(String categoria) {
         List<Produto> produtos = produtoRepository.findByCategoria(categoria);
+        
+        return produtos.stream()
+            .map(p -> modelMapper.map(p, ProdutoResponseDTO.class))
+            .collect(Collectors.toList());
+    }
+    
+    // --- NOVO MÉTODO (Roteiro 5) ---
+    @Override
+    @Transactional
+    public void deletarProduto(Long id) {
+        Produto produto = produtoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
+        
+        // Adicionaríamos uma verificação de "soft delete" ou se o produto está em um pedido
+        // Mas para este roteiro, vamos deletar diretamente
+        produtoRepository.delete(produto);
+    }
+    
+    // --- NOVO MÉTODO (Roteiro 5) ---
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProdutoResponseDTO> buscarProdutosPorNome(String nome) {
+        List<Produto> produtos = produtoRepository.findByNomeContainingIgnoreCase(nome);
         
         return produtos.stream()
             .map(p -> modelMapper.map(p, ProdutoResponseDTO.class))

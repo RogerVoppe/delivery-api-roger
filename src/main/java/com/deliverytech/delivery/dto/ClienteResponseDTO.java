@@ -1,13 +1,26 @@
 package com.deliverytech.delivery.dto;
 
-// Convertido de 'record' para 'class' para compatibilidade
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "DTO de resposta com os dados completos do cliente")
 public class ClienteResponseDTO {
 
+    @Schema(description = "ID único do cliente", example = "1")
     private Long id;
+    
+    @Schema(description = "Nome completo do cliente", example = "João da Silva")
     private String nome;
+    
+    @Schema(description = "E-mail único do cliente", example = "joao.silva@email.com")
     private String email;
+    
+    @Schema(description = "Telefone de contato", example = "11987654321")
     private String telefone;
+    
+    @Schema(description = "Endereço principal de entrega", example = "Rua das Flores, 123")
     private String endereco;
+    
+    @Schema(description = "Indica se o cliente está ativo no sistema", example = "true")
     private boolean ativo;
 
     // Construtor vazio (O ModelMapper precisa disso!)

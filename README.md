@@ -1,36 +1,59 @@
-Delivery API — Projeto Acadêmico (Spring Boot + Java 21)
+DeliveryTech API
 
-Este projeto foi desenvolvido como parte da disciplina Arquitetura de Sistemas — API REST Full com Java Spring Boot.  
+Este é um projeto de API REST para um aplicativo de delivery, construído com Java 21 e Spring Boot.
 
-| Aluno | Curso | Semestre | Faculdade |
+É um projeto acadêmico que evoluiu em 6 etapas (roteiros). Ele cobre tudo, desde a configuração inicial, passando pela criação de uma API REST completa (com DTOs, Services e lógica de transação), até a implementação de documentação interativa com Swagger e validações customizadas.
 
-| Roger | Engenharia de Software | 3º Semestre | Universidade São Judas Tadeu |
+🛠️ Tecnologias Usadas
 
-Objetivo do Projeto
+* Java 21
+* Spring Boot 3.x
+* Spring Web (API REST)
+* Spring Data JPA (Persistência)
+* H2 (Banco de dados em memória)
+* Spring Boot Validation
+* springdoc-openapi (Swagger): Para documentação da API
+* ModelMapper: Para conversão de Entidade/DTO
+* Maven
 
-- Criar uma API REST do zero
-- Implementar endpoints públicos
-- Testar com navegador/cliente HTTP
-- Versionar o projeto com Git e GitHub
-- Utilizar banco de dados H2 em memória
-- Aplicar conceitos de arquitetura de sistemas e MVC
+🏃‍♂️ Como Rodar o Projeto
 
-Tecnologias Utilizadas
+1.  Você precisa ter o **JDK 21** instalado.
+2.  Clone o repositório:
+    ```bash
+    git clone [https://github.com/RogerVoppe/delivery-api-roger.git](https://github.com/RogerVoppe/delivery-api-roger.git)
+    
+3.  Entre na pasta e rode o projeto com o Maven Wrapper:
+    ```bash
+    mvnw.cmd spring-boot:run
+    
+4.  A API vai ligar e estará rodando em `http://localhost:8080`.
 
-| Java 21 LTS | Linguagem |
 
-| Spring Boot 3.5.7 | Framework principal |
+📄 Como Testar (com Swagger UI)
 
-| Spring Web | API REST |
+Acesse a documentação no seu navegador:
+`http://localhost:8080/swagger-ui.html`
 
-| Spring Data JPA | Persistência |
+Você verá todos os seus controllers (Clientes, Pedidos, Restaurantes, Relatórios) listados e prontos para testar.
 
-| H2 Database | Banco em memória |
 
-| Maven | Gerenciamento do projeto |
+❗️ IMPORTANTE: Banco em Memória
 
-| DevTools | Hot reload |
+Para testar a API (especialmente o `POST /api/pedidos`), você precisa cadastrar os dados em sequência, usando o botão **"Try it out"** no Swagger:
 
-| Git & GitHub | Versionamento e repositório remoto |
+1.  **`POST /api/clientes`**: Cadastre um cliente.
+2.  **`POST /api/restaurantes`**: Cadastre um restaurante.
+3.  **`POST /api/produtos`**: Cadastre um ou dois produtos (lembrando de usar o ID do restaurante que você acabou de criar).
+4.  **`POST /api/pedidos`**: Agora sim, crie o pedido usando os IDs do cliente e dos produtos.
 
-| VS Code | IDE |
+
+🚀 Oportunidades 
+
+* Segurança: A API está 100% aberta. O próximo passo seria adicionar Spring Security (com JWT, por exemplo) para proteger os endpoints e criar rotas de login.
+* Banco de Dados Real: Estamos usando um banco H2 em memória. Para produção, o ideal seria migrar para um banco persistente como MySQL ou PostgreSQL.
+* Testes de Unidade: Testamos a API manualmente (com Postman e Swagger). Um próximo passo seria escrever testes de unidade (com JUnit e Mockito) para a camada de serviço, garantindo que as regras de negócio funcionem isoladamente.
+
+👨‍💻 Desenvolvedor
+
+Roger Voppe

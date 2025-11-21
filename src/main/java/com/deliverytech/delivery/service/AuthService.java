@@ -30,10 +30,10 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         // Cria o usuário com a senha criptografada
         Usuario user = new Usuario();
-        user.setNome(request.nome());
-        user.setEmail(request.email());
-        user.setSenha(passwordEncoder.encode(request.senha())); // Criptografa a senha!
-        user.setRole(request.role());
+        user.setNome(request.getNome()); // <-- CORRIGIDO: getNome()
+        user.setEmail(request.getEmail()); // <-- CORRIGIDO: getEmail()
+        user.setSenha(passwordEncoder.encode(request.getSenha())); // <-- CORRIGIDO: getSenha()
+        user.setRole(request.getRole()); // <-- CORRIGIDO: getRole()
         
         usuarioRepository.save(user);
         
@@ -46,13 +46,13 @@ public class AuthService {
         // O AuthenticationManager verifica email e senha automaticamente
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                request.email(),
-                request.senha()
+                request.getEmail(), // <-- CORRIGIDO: getEmail()
+                request.getSenha()  // <-- CORRIGIDO: getSenha()
             )
         );
         
         // Se chegou aqui, a senha está correta. Vamos gerar o token.
-        Usuario user = usuarioRepository.findByEmail(request.email()).orElseThrow();
+        Usuario user = usuarioRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtUtil.generateToken(user);
         return new AuthResponse(token);
     }

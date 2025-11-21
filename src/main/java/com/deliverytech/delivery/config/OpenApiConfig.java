@@ -1,29 +1,40 @@
 package com.deliverytech.delivery.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration // Define esta classe como uma fonte de configuração
+@Configuration
 public class OpenApiConfig {
 
-    @Bean // Diz ao Spring para usar este objeto como a configuração principal do OpenAPI
+    @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("DeliveryTech API") // Título da sua API
-                .version("1.0.0") // Versão
-                .description("API RESTful completa para um sistema de delivery, desenvolvida no curso de extensão.")
+                .title("DeliveryTech API")
+                .version("1.0.0")
+                .description("API RESTful completa para um sistema de delivery.")
                 .contact(new Contact()
-                    .name("Roger Voppe") // Seu nome
-                    .email("roger@exemplo.com") // Seu e-mail
-                    .url("https://github.com/RogerVoppe/delivery-api-roger")) // Seu GitHub
+                    .name("Roger Voppe")
+                    .email("roger@exemplo.com")
+                    .url("https://github.com/RogerVoppe/delivery-api-roger"))
                 .license(new License()
                     .name("Licença MIT")
-                    .url("http://springdoc.org"))
-            );
+                    .url("http://springdoc.org")))
+            // Adiciona o botão "Authorize" no Swagger
+            .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+            .components(new Components()
+                .addSecuritySchemes("bearerAuth",
+                    new SecurityScheme()
+                        .name("bearerAuth")
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
     }
 }
